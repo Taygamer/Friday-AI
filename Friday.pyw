@@ -18,6 +18,8 @@ import webbrowser
 from win32com.client import Dispatch
 from pathlib import Path
 import pythoncom
+import json
+
 tray_icon = None
 if sys.platform == "win32":
 
@@ -168,6 +170,50 @@ icon_image = Image.open(icon_path)
 
 recognizer = sr.Recognizer()
 mic = sr.Microphone()
+
+# Load commands from JSON
+with open("commands.json", "r") as f:
+    COMMANDS = json.load(f)
+
+def execute_command(command_text):
+    command_text = command_text.lower()
+    for entry in COMMANDS:
+        for phrase in entry["phrases"]:
+            if phrase in command_text:
+                action = entry["action"]
+                if action == "open_app":
+                    speak(f"Opening {entry['target'].split('/')[-1].split('.')[0].capitalize()}")
+                    try:
+                        os.startfile(entry["target"])
+                    except AttributeError:
+                        subprocess.Popen(entry["target"])
+                elif action == "add_to_startup":
+                    speak("Adding Myself to Windows startup.")
+                    add_to_startup()
+                elif action == "remove_from_startup":
+                    speak("Removing Friday from Windows startup.")
+                    remove_from_startup()
+                elif action == "speak":
+                    speak(entry["text"])
+                elif action == "tell_time":
+                    current_time = datetime.datetime.now().strftime("%I:%M %p")
+                    speak(f"The current time is {current_time}")
+                elif action == "tell_date":
+                    today = datetime.date.today().strftime("%A, %B %d, %Y")
+                    speak(f"Today's date is {today}")
+                elif action == "search_google":
+                    search_term = command_text.replace(phrase, "").strip()
+                    url = f"https://www.google.com/search?q={search_term}"
+                    webbrowser.open(url)
+                    speak(f"Searching Google for {search_term}")
+                elif action == "close_app":
+                    speak(f"Closing {entry['target'].split('.')[0].capitalize()}")
+                    subprocess.call(["taskkill","/F","/IM",entry["target"]])
+                elif action == "shutdown_computer":
+                    speak("Shutting down the Computer")
+                    shutdown_computer()
+                return
+    speak("Sorry, I did not understand that command.")
 
 def listen_for_wake_word():
     with mic as source:
