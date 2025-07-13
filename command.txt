@@ -19,3 +19,15 @@ Open/Close Minecraft: Opens Minecraft.exe
 Daddys Home: Starts up Computer/Doesn't Work
 ----------------------------------------------
 Coding Time: VS Code Opens
+----------------------------------------------
+what's the Time: Tells you The Time
+----------------------------------------------
+What's The Date: Tells you the Date
+----------------------------------------------
+Search for [The Thing you want to search]: Search For whatever you like
+----------------------------------------------
+
+Enable/Disable Startup: You can Choose if you want the application to start on Pc Start up
+
+
+Say Hey Friday and Then The Commands above and She will do the Commands!

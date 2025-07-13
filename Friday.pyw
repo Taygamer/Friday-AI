@@ -13,12 +13,27 @@ import tempfile
 import pyttsx3
 import ctypes
 import sys
-
+import datetime
+import webbrowser
+from win32com.client import Dispatch
+from pathlib import Path
+import pythoncom
+tray_icon = None
 if sys.platform == "win32":
+
     ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
 
 # Initialize pygame mixer
 pygame.mixer.init()
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 def shutdown_computer():
     if os.name == 'nt':
@@ -29,13 +44,76 @@ def shutdown_computer():
         os.system('sudo shutdown now')
     else:
         print('Unsupported operating system.')
+def add_to_startup():
+    try:
+        file_path = os.path.realpath(sys.argv[0])
 
+        # Get path to Startup folder
+        startup_folder = os.path.join(os.environ['APPDATA'], r"Microsoft\Windows\Start Menu\Programs\Startup")
+        shortcut_path = os.path.join(startup_folder, "Friday.lnk")
+
+        # Don't add duplicate shortcut
+        if os.path.exists(shortcut_path):
+            speak("Friday is already set to run at startup.")
+            return
+
+        shell = Dispatch('WScript.Shell')
+        shortcut = shell.CreateShortCut(shortcut_path)
+        shortcut.Targetpath = file_path
+        shortcut.WorkingDirectory = os.path.dirname(file_path)
+        shortcut.IconLocation = file_path
+        shortcut.save()
+
+        speak("Friday has been added to Windows startup.")
+    except Exception as e:
+        print(f"Error adding to startup: {e}")
+        speak("Failed to add Friday to startup.")
+def remove_from_startup():
+    try:
+        startup_folder = os.path.join(os.environ['APPDATA'], r"Microsoft\Windows\Start Menu\Programs\Startup")
+        shortcut_path = os.path.join(startup_folder, "Friday.lnk")
+
+        if os.path.exists(shortcut_path):
+            os.remove(shortcut_path)
+            speak("Friday has been removed from startup.")
+        else:
+            speak("Friday was not set to start with Windows.")
+    except Exception as e:
+        print(f"Error removing from startup: {e}")
+        speak("Failed to remove Friday from startup.")
+        
 # Calling the shutdown_computer() function to initiate shutdown
 def play_sound(filename): 
     try:
         pygame.mixer.Sound(filename).play()
     except Exception as e:
         print(f"Failed to play sound {filename}: {e}") # Grabs Temp Play file and Plays
+#try show function
+def on_show():
+    root.after(0, window.deiconify)
+#tray hide function
+def on_hide():
+    root.after(0, window.withdraw)
+#exit app function
+def exit_app(icon, item):
+   on_exit()
+def on_exit(icon=None, item=None):
+    if icon:
+        icon.stop()
+    root.after(0, root.destroy)
+    os._exit(0)  # Forcefully exit entire app including threads
+
+#set up tray for windows
+def setup_tray_icon():
+    icon_path = resource_path("jarvis_icon.png")
+    icon_image = Image.open(icon_path)
+    menu = pystray.Menu(
+        pystray.MenuItem('Show', lambda icon, item: on_show()),
+        pystray.MenuItem('Hide', lambda icon, item: on_hide()),
+        pystray.MenuItem('Exit', exit_app)
+    )
+    tray_icon = pystray.Icon("FridayAI", icon_image, "Friday AI Assistant", menu)
+    tray_icon.run()
 
 def speak(text):
     temp_file = tempfile.mktemp(suffix=".mp3")
@@ -63,23 +141,30 @@ def speak(text):
                 time.sleep(0.2)
 # Create GUI
 root = tk.Tk()
-root.withdraw()  # Hide root completely so it doesn't show in taskbar
+root.withdraw() 
 window = tk.Toplevel()
 window.overrideredirect(1)
 window.attributes('-topmost', True)
-window.withdraw()  # Optional: start hidden if you want tray control only
+window.withdraw()  
 window.config(bg='#000000')
 window.geometry("250x250")
 window.overrideredirect(1)
 
-img = PhotoImage(file=r"logout.png")
-img2 = PhotoImage(file=r"text.gif")
-button = tk.Button(window, image=img, command=lambda: exit_app())
+img = PhotoImage(file=resource_path("logout.png"))
+img2 = PhotoImage(file=resource_path("text.gif"))
+button = tk.Button(window, image=img, command=lambda: on_exit())
 button.config(background='#000000', foreground='#ffffff') # Exit Button
 label1 = tk.Label(window, image=img2)
 label1.config(background='#000000', foreground='#ffffff')
 label1.place(x=20, y=1)
 button.place(relx=0.5, rely=1.0, anchor='s')
+#Checks for Jarvis ICON For Tray Use
+if hasattr(sys, '_MEIPASS'):
+    icon_path = os.path.join(sys._MEIPASS, 'jarvis_icon.png')
+else:
+    icon_path =resource_path('jarvis_icon.png')
+
+icon_image = Image.open(icon_path)
 
 recognizer = sr.Recognizer()
 mic = sr.Microphone()
@@ -114,13 +199,20 @@ def listen_for_command():
     try:
         command = recognizer.recognize_google(audio).lower()
         print(f"Command recognized: {command}") # if Command called It Executes Command
-
-        if "open notepad" in command:
+        
+        # Process confirmed command
+        if "open notepad" in command: 
             speak("Opening Notepad")
             subprocess.Popen("notepad.exe")
         elif "open calculator" in command:
             speak("Opening Calculator")
             subprocess.Popen("calc.exe")
+        elif "enable startup" in command or "add to startup" in command:
+            speak("Adding Myself to Windows startup.")
+            add_to_startup()
+        elif "disable startup" in command or "remove from startup" in command:
+            speak("Removing Friday from Windows startup.")
+            remove_from_startup()
         elif "open roblox" in command:
             speak("Opening Roblox")
             os.startfile(r"C:\Users\tidge\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Roblox\Roblox Player.lnk")
@@ -144,6 +236,17 @@ def listen_for_command():
             os.startfile(r"C:\XboxGames\Minecraft Launcher\Content\Minecraft.exe")
         elif "thank you" in command:
                 speak("It's My Pleasure Sir")
+        elif "what's the time" in command or "what is the time" in command:
+            current_time = datetime.datetime.now().strftime("%I:%M %p")
+            speak(f"The current time is {current_time}")
+        elif "what's the date" in command or "what is the date" in command:
+            today = datetime.date.today().strftime("%A, %B %d, %Y")
+            speak(f"Today's date is {today}")
+        elif "search for" in command:
+            search_term = command.replace("search for", "").strip()
+            url = f"https://www.google.com/search?q={search_term}"
+            webbrowser.open(url)
+            speak(f"Searching Google for {search_term}")
         elif "close spotify" in command:
             speak("Closing Spotify")
             subprocess.call(["taskkill","/F","/IM","spotify.exe"])
@@ -177,34 +280,11 @@ def listen_for_command():
     except sr.RequestError as e:
         print(f"API error: {e}")
 
-# System tray setup
-def exit_app(icon=None, item=None):
-    print("Exiting application...")
-    if icon:
-        icon.stop()   # Stop the tray icon properly
-    root.quit()       # Close Tkinter window cleanly
-    # No exit() here
-    
-
-def setup_tray_icon():
-    # Load your tray icon image
-    icon_image = Image.open("jarvis_icon.png")
-
-    menu = pystray.Menu(
-        pystray.MenuItem('Show', lambda icon, item: window.deiconify()),
-        pystray.MenuItem('Hide', lambda icon, item: window.withdraw()),  # Makes a Item for the Tray to do certain functions
-        pystray.MenuItem('Exit', exit_app)
-    )
-
-    tray_icon = pystray.Icon("JarvisAI", icon_image, "Friday AI Assistant", menu)
-    tray_icon.run()
-
-# Start listener thread
+# Example placeholder for your listener function
 listener_thread = threading.Thread(target=listen_for_wake_word, daemon=True)
 listener_thread.start()
 
-# Run tray icon in its own thread so it doesn't block mainloop
-tray_thread = threading.Thread(target=setup_tray_icon, daemon=True)
+tray_thread = threading.Thread(target=setup_tray_icon)
 tray_thread.start()
-
 window.mainloop()
+#BUILD EXE WITH py -3 -m PyInstaller --onefile --icon=jarvis_icon.ico --add-data "jarvis_icon.png;." --add-data "logout.png;." --add-data "text.gif;." Friday.pyw
