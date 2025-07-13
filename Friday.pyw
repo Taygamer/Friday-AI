@@ -319,6 +319,8 @@ def listen_for_command():
         elif "shut down" in command:
             speak("Shutting down the Computer")
             shutdown_computer()
+        elif "clanker" in command:
+            speak("Fuck you Sir, You Robophobic Twat")
         else:
             speak("Sorry, I did not understand that command.")
     except sr.UnknownValueError:
