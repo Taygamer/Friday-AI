@@ -5,7 +5,7 @@ a = Analysis(
     ['Friday.pyw'],
     pathex=[],
     binaries=[],
-    datas=[('jarvis_icon.png', '.'), ('logout.png', '.'), ('text.gif', '.')],
+    datas=[('jarvis_icon.png', '.'), ('logout.png', '.'), ('text.gif', '.'), ('commands.json', '.')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},

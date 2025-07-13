@@ -333,4 +333,5 @@ listener_thread.start()
 tray_thread = threading.Thread(target=setup_tray_icon)
 tray_thread.start()
 window.mainloop()
-#BUILD EXE WITH py -3 -m PyInstaller --onefile --icon=jarvis_icon.ico --add-data "jarvis_icon.png;." --add-data "logout.png;." --add-data "text.gif;." Friday.pyw
+#BUILD EXE WITH py -3 -m PyInstaller --onefile --icon=jarvis_icon.ico --add-json "command.json;." --add-data "jarvis_icon.png;." --add-data "logout.png;." --add-data "text.gif;." Friday.pyw
+
