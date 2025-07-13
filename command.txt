@@ -1,0 +1,21 @@
+Avalible Commands for Friday Assistant:
+----------------------------------------------
+Open/Close Notepad: Opens Notepad.exe
+----------------------------------------------
+Open/Close Calculator: Opens Calculator.exe
+----------------------------------------------
+Open/Close Command List: Opens This Doccument
+----------------------------------------------
+Open/Close Roblox: Opens Roblox.exe
+----------------------------------------------
+Open/Close Spotify: Opens Spotify.exe
+----------------------------------------------
+Youtube: Opens Youtube on Google.exe
+----------------------------------------------
+Open/Close Steam: Opens Steam.exe
+----------------------------------------------
+Open/Close Minecraft: Opens Minecraft.exe
+----------------------------------------------
+Daddys Home: Starts up Computer/Doesn't Work
+----------------------------------------------
+Coding Time: VS Code Opens
