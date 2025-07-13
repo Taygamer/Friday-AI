@@ -172,7 +172,7 @@ recognizer = sr.Recognizer()
 mic = sr.Microphone()
 
 # Load commands from JSON
-with open("commands.json", "r") as f:
+with open(resource_path("commands.json"), "r") as f:
     COMMANDS = json.load(f)
 
 def execute_command(command_text):
