@@ -22,5 +22,6 @@
     {"phrases": ["close steam"], "action": "close_app", "target": "steam.exe"},
     {"phrases": ["close minecraft"], "action": "close_app", "target": "Minecraft.exe"},
     {"phrases": ["nothing"], "action": "speak", "text": "Okay Sir, Let Me Know if You Need Something"},
-    {"phrases": ["shut down"], "action": "shutdown_computer"}
+    {"phrases": ["shut down"], "action": "shutdown_computer"},
+    {"phrases": ["clanker"], "action": "speak", "text": "Fuck you Sir, You Robophobic Twat"}
 ]

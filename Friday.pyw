@@ -244,85 +244,8 @@ def listen_for_command():
         audio = recognizer.listen(source)
     try:
         command = recognizer.recognize_google(audio).lower()
-        print(f"Command recognized: {command}") # if Command called It Executes Command
-        
-        # Process confirmed command
-        if "open notepad" in command: 
-            speak("Opening Notepad")
-            subprocess.Popen("notepad.exe")
-        elif "open calculator" in command:
-            speak("Opening Calculator")
-            subprocess.Popen("calc.exe")
-        elif "enable startup" in command or "add to startup" in command:
-            speak("Adding Myself to Windows startup.")
-            add_to_startup()
-        elif "disable startup" in command or "remove from startup" in command:
-            speak("Removing Friday from Windows startup.")
-            remove_from_startup()
-        elif "open roblox" in command:
-            speak("Opening Roblox")
-            os.startfile(r"C:\Users\tidge\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Roblox\Roblox Player.lnk")
-        elif "open command list" in command or "commands" in command:
-            speak("Here are your commands.")
-            os.startfile("command.txt") # Commands
-        elif "open spotify" in command:
-            speak("Opening Spotify")
-            os.startfile(r"C:\Users\tidge\AppData\Roaming\Spotify\Spotify.exe")
-        elif "youtube" in command:
-            speak("Opening YouTube")
-            os.startfile(r"C:\Users\tidge\Downloads\YouTube.html")
-        elif "open steam" in command:
-            speak("Opening Steam")
-            os.startfile(r"C:\Program Files (x86)\Steam\steam.exe")
-        elif "coding time" in command:
-            speak("Opening Visual Studio Code")
-            os.startfile(r"C:\Users\tidge\AppData\Local\Programs\Microsoft VS Code\Code.exe")
-        elif "open minecraft" in command:
-            speak("Launching Minecraft")
-            os.startfile(r"C:\XboxGames\Minecraft Launcher\Content\Minecraft.exe")
-        elif "thank you" in command:
-                speak("It's My Pleasure Sir")
-        elif "what's the time" in command or "what is the time" in command:
-            current_time = datetime.datetime.now().strftime("%I:%M %p")
-            speak(f"The current time is {current_time}")
-        elif "what's the date" in command or "what is the date" in command:
-            today = datetime.date.today().strftime("%A, %B %d, %Y")
-            speak(f"Today's date is {today}")
-        elif "search for" in command:
-            search_term = command.replace("search for", "").strip()
-            url = f"https://www.google.com/search?q={search_term}"
-            webbrowser.open(url)
-            speak(f"Searching Google for {search_term}")
-        elif "close spotify" in command:
-            speak("Closing Spotify")
-            subprocess.call(["taskkill","/F","/IM","spotify.exe"])
-        elif "close notepad" in command:
-            speak("Closing Notepad")
-            subprocess.call(["taskkill","/F","/IM","notepad.exe"])
-        elif "close calculator" in command:
-            speak("Closing calculator")
-            subprocess.call(["taskkill","/F","/IM","calc.exe"])
-        elif "close roblox" in command:
-            speak("Closing Roblox")
-            subprocess.call(["taskkill","/F","/IM","Roblox Player.lnk"])
-        elif "close commandlist" in command:
-            speak("Closing Commandlist")
-            subprocess.call(["taskkill","/F","/IM","notepad.exe"])
-        elif "close steam" in command:
-            speak("Closing Steam")
-            subprocess.call(["taskkill","/F","/IM","steam.exe"])
-        elif "close minecraft" in command:
-            speak("Closing minecraft")
-            subprocess.call(["taskkill","/F","/IM","Minecraft.exe"])
-        elif "nothing" in command:
-            speak("Okay Sir, Let Me Know if You Need Something")
-        elif "shut down" in command:
-            speak("Shutting down the Computer")
-            shutdown_computer()
-        elif "clanker" in command:
-            speak("Fuck you Sir, You Robophobic Twat")
-        else:
-            speak("Sorry, I did not understand that command.")
+        print(f"Command recognized: {command}")
+        execute_command(command)
     except sr.UnknownValueError:
         speak("Sorry, I did not understand that.")
     except sr.RequestError as e:
